@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Light, Green Light Game</title>
+  <style>
+
+:root {
+    --color-red: #FF0000;
+    --color-green: #00FF00;
+    --color-black: #000000;
+    --color-white: #FFFFFF;
+    --color-pink: #FFC0CB;
+    --color-yellow: #FFFF00;
+    --color-blue: #0000FF;
+    --color-orange: #FFA500;
+    --color-purple: #800080;
+}
+
+/* Styling for the body */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--color-black); /* Black background for intensity */
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100vh; /* Full viewport height */
+}
+
+/* Styling for the game container */
+#game-container {
+  width: 80%; /* Width of the game box */
+  height: 80vh; /* Height of the game box */
+  position: relative;
+  border: 2px solid var(--color-white); /* White border for contrast */
+  background-color: var(--color-black); /* Black background */
+  padding: 20px; /* Padding inside the box */
+  box-sizing: border-box; /* Include padding in width/height */
+}
+
+/* Style for the starting line */
+#start-line {
+  width: 100%; /* Width of the starting line */
+  height: 50px;
+  background: linear-gradient(to top, var(--color-green), rgba(102, 255, 102, 0)); /* Green gradient */
+  position: absolute;
+  bottom: 0; /* Position it at the bottom */
+  left: 0; /* Align it to the left */
+}
+
+#start-text {
+  font-size: 20px;
+  color: var(--color-white); /* White text for contrast */
+  text-align: center;
+}
+
+/* Style for the finish line */
+#finish-line {
+  width: 100%; /* Width of the finish line */
+  height: 50px; /* Full height minus padding */
+  background: linear-gradient(to bottom, var(--color-red), rgba(255, 204, 204, 0)); /* Red gradient */
+  position: absolute;
+  top: 0; /* Position it at the top */
+  right: 0; /* Align it to the right */
+}
+
+#finish-text {
+  font-size: 20px;
+  color: var(--color-white); /* White text for contrast */
+  text-align: center;
+}
+
+/* Player styling */
+.player {
+  width: 50px; /* Width of each player */
+  height: 50px; /* Height of each player */
+  background-image: url('player.png'); /* Player image */
+  background-size: cover; /* Cover the entire div */
+  background-position: center; /* Center the image */
+  position: absolute;
+  bottom: 10px; /* Position it above the starting line */
+  z-index: 1; /* Bring the player to the front */
+
+}
+
+/* Position players in a row */
+#player1 { left: 20%; }
+#player2 { left: 30%; }
+#player3 { left: 40%; }
+#player4 { left: 50%; }
+#player5 { left: 60%; }
+#player6 { left: 70%; }
+
+/* Enemy (Doll) styling */
+#enemy {
+    width: 100px; /* Width of the enemy */
+    height: 100px; /* Height of the enemy */
+    background-image: url('doll.png'); /* Default doll image */
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: 0; /* Position it above the bottom line */
+    right: 50%; /* Center horizontally */
+    transform: translateX(50%); /* Adjust for centering */
+}
+
+/* Guards styling */
+#guard1, #guard2 {
+    width: 40px; /* Width of the guards */
+    height: 40px; /* Height of the guards */
+    background-image: url('guard.png'); /* Guard image */
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: 20px;
+}
+
+#guard1 { right: 45%; transform: translateX(70%); } /* Position guard 1 */
+#guard2 { right: 55%; transform: translateX(30%); } /* Position guard 2 */
+
+/* Timer display styling */
+#timer {
+  position: absolute;
+  top: -40px; /* Position it above the game container */
+  left: 10px; /* Align it to the left */
+  font-size: 24px;
+  color: var(--color-yellow); /* Yellow for the timer */
+}
+/* End Game and Lose Game Screens */
+#end-game-screen, #lose-game-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
+    color: var(--color-white); /* White text for contrast */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it appears above other elements */
+}
+
+#end-game-message, #lose-game-message {
+    font-size: 36px;
+    color: var(--color-red); /* Red for dramatic effect */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#restart-button, #try-again-button {
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: var(--color-orange); /* Orange for buttons */
+    color: var(--color-black); /* Black text for contrast */
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+    pointer-events: auto; /* Make the button clickable */
+
+}
+
+#restart-button:hover, #try-again-button:hover {
+    background-color: var(--color-yellow); /* Yellow on hover */
+}
+
+/* Home Screen Styling */
+#home-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--color-black); /* Black background */
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Ensure it appears above other elements */
+    border: 2px solid var(--color-white); /* White border */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2); /* Subtle white shadow */
+}
+
+#game-title {
+    font-size: 48px;
+    margin-bottom: 30px;
+    color: var(--color-red); /* Red for the title */
+    text-shadow: 2px 2px 4px rgba(255, 0, 0, 0.5); /* Red shadow */
+}
+
+#start-button, #instructions-button {
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: var(--color-green); /* Green for start button */
+    color: var(--color-black); /* Black text for contrast */
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 15px; /* Space between buttons */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+#start-button:hover {
+    background-color: var(--color-blue); /* Blue on hover */
+}
+
+#instructions-button {
+    background-color: var(--color-purple); /* Purple for instructions button */
+}
+
+#instructions-button:hover {
+    background-color: var(--color-pink); /* Pink on hover */
+}
+
+/* Instructions Screen Styling */
+#instructions-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--color-black); /* Black background */
+    color: var(--color-white); /* White text */
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Ensure it appears above other elements */
+    border: 2px solid var(--color-white); /* White border */
+}
+
+#instructions-screen h2 {
+    font-size: 36px;
+    color: var(--color-red); /* Red for the heading */
+    margin-bottom: 20px;
+}
+
+#instructions-screen p {
+    font-size: 18px;
+    color: var(--color-white); /* White text */
+    margin-bottom: 10px;
+}
+
+#home-button {
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: var(--color-orange); /* Orange for home button */
+    color: var(--color-black); /* Black text for contrast */
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+#home-button:hover {
+    background-color: var(--color-yellow); /* Yellow on hover */
+}
+
+/* Timer Display Styling */
+#timer {
+    position: absolute;
+    top: -40px; /* Position it above the game container */
+    left: 10px; /* Align it to the left */
+    font-size: 24px;
+    color: var(--color-yellow); /* Yellow for the timer */
+}
+
+/* Finish Text Styling */
+#finish-text {
+    font-size: 20px;
+    color: var(--color-white); /* White text for contrast */
+    text-align: center;
+}
+
+/* Additional Styling for Game Elements */
+#enemy {
+    background-image: url('doll.png'); /* Default doll image */
+    background-size: cover;
+    background-position: center;
+}
+
+#enemy.red-light {
+    background-image: url('dollfront.png'); /* Red light doll image */
+}
+
+/* Light Alternation Logic */
+.green-light {
+    background-color: var(--color-green); /* Green background for green light */
+}
+
+.red-light {
+    background-color: var(--color-red); /* Red background for red light */
+}
+
+/* Player Elimination Styling */
+.player.eliminated {
+    background-color: var(--color-red); /* Red for eliminated players */
+    opacity: 0.5; /* Semi-transparent to indicate elimination */
+}
+
+/* Safe Zone Styling */
+.safe-zone {
+    background-color: var(--color-blue); /* Blue for safe zones */
+}
+
+/* Warning Styling */
+#warning {
+    font-size: 24px;
+    color: var(--color-yellow); /* Yellow for warnings */
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Progress Bar Styling */
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: var(--color-green); /* Green for progress */
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+/* Button Hover Effects */
+button:hover {
+    transform: scale(1.05); /* Slightly enlarge buttons on hover */
+    transition: transform 0.2s ease;
+}
+
+/* Responsive design for mobile phones */
+@media (max-width: 768px) {
+    #game-title {
+        font-size: 24px; /* Reduce font size for mobile phones */
+        text-align: center; /* Center align the game title */
+    }
+
+    #end-game-message, #lose-game-message {
+        font-size: 24px; /* Reduce font size for mobile phones */
+        text-align: center; /* Center align the win and lose messages */
+    }
+
+    #game-container {
+        width: 90%; /* Reduce the width of the game container for mobile phones */
+        height: 80vh; /* Reduce the height of the game container for mobile phones */
+    }
+
+    #start-button, #instructions-button, #restart-button, #try-again-button, #home-button {
+        padding: 10px 20px; /* Reduce the padding for mobile phones */
+        font-size: 16px; /* Reduce the font size for mobile phones */
+    }
+
+    .player {
+        z-index: 1; /* Bring the player to the front */
+    }
+
+    #guard1, #guard2, #enemy {
+        z-index: 2; /* Bring the guard and doll to the front */
+    }
+}
+  </style>
+</head>
+<body>
+  <!-- Home Screen -->
+<div id="home-screen">
+  <h1 id="game-title">Red Light, Green Light</h1>
+  <button id="start-button">Start Game</button>
+  <button id="instructions-button">Instructions</button>
+</div>
+
+<!-- Instructions Screen -->
+<div id="instructions-screen" style="display: none;">
+  <h2>Instructions</h2>
+  <p>Press "Arrow Up" to move forward.</p>
+  <p>Move only when the light is green.</p>
+  <p>Avoid moving when the light is red.</p>
+  <p>Reach the finish line to win.</p>
+  <p>Try again if you get caught.</p>
+  <p style="color: blue;">Mobile Users: Tap screen to move.</p>  
+    <button id="home-button">Home</button>
+</div>
+    <audio id="game-music" src="music.mp3" preload="auto"></audio>
+    <div id="game-container">
+        <div id="start-line">
+            <p id="start-text">Start</p>
+        </div> <!-- Starting line -->
+        <div class="player" id="player1"></div>
+        <div class="player" id="player2"></div>
+        <div class="player" id="player3"></div>
+        <div class="player" id="player4"></div>
+        <div class="player" id="player5"></div>
+        <div class="player" id="player6"></div>
+        <div id="finish-line">
+            <div id="enemy"></div>
+            <div id="guard1"></div>
+            <div id="guard2"></div>
+            <p id="finish-text">Finish</p>
+        </div>
+        <div id="end-game-screen" style="display: none;">
+            <h1 id="end-game-message"></h1>
+            <button id="restart-button">Restart Game</button>
+        </div>
+        
+        <div id="lose-game-screen" style="display: none;">
+          <h1 id="lose-game-message"></h1>
+          <button id="try-again-button">Try Again</button>
+      </div>
+        <div id="timer">Time: 60</div>
+      </div>
+  <script src="script.js"></script>
+</body>
+</html>
