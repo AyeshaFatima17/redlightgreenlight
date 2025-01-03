@@ -259,3 +259,44 @@ function checkWinCondition() {
         endGame("You have been eliminated!");
     }
 }
+// Add touch event listener for mobile screens
+gameContainer.addEventListener("touchstart", (e) => {
+    if (!gameActive) return; // Ignore movement if game inactive
+
+    // Check if the light is red
+    if (!greenLight) {
+        // Eliminate the player who moved during red light
+        const players = document.querySelectorAll('.player');
+        players.forEach((player) => {
+            const currentBottom = parseInt(window.getComputedStyle(player).bottom, 10);
+            // If the specific player is moving during red light, eliminate them
+            if (currentBottom > 0 && player.style.display !== 'none') {
+                player.style.display = 'none'; // Hide only the player who moved
+                const playerId = player.id; // Get the ID of the eliminated player
+                console.log(`Player with ID ${playerId} eliminated.`); // Log the eliminated player ID
+                // Set the speed to 0 for the eliminated player
+                const index = parseInt(playerId.replace('player', '')) - 1; // Extract index from ID
+                playerSpeeds[index] = 0; // Set speed to 0 to prevent further movement
+            }
+        });
+
+        // Immediately check if all players are eliminated
+        checkWinCondition();
+        return; // Exit the function to prevent further movement
+    }
+
+    // Move each player when the screen is tapped
+    const players = document.querySelectorAll('.player');
+    players.forEach((player, index) => {
+        const currentBottom = parseInt(window.getComputedStyle(player).bottom, 10); // Get current bottom position
+        const gameContainerHeight = gameContainer.clientHeight; // Get the height of the game container
+
+        // Check if the player can move without going out of bounds
+        if (currentBottom + playerSpeeds[index] < gameContainerHeight - 48) { // 50 is the height of the finish line
+            player.style.bottom = `${currentBottom + playerSpeeds[index]}px`; // Move player up by their respective speed
+        }
+    });
+
+    // Check win condition after moving players
+    checkWinCondition();
+});
